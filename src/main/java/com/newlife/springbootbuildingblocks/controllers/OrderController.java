@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.newlife.springbootbuildingblocks.entities.Order;
 import com.newlife.springbootbuildingblocks.entities.User;
@@ -52,6 +55,17 @@ public class OrderController {
 		order.setUser(user);
 		return orderRepository.save(order);
 
+	}
+	
+	//get order by order id
+	@GetMapping("{userid}/orders/{orderid}")
+	public Optional<Order> getOrderByOrderId(@PathVariable Long userid, @PathVariable Long orderid) {
+		Optional<User> userOptional = userRepository.findById(userid);
+		Optional<Order> orderOptional = orderRepository.findById(orderid);
+		
+		if (!userOptional.isPresent() || !orderOptional.isPresent())
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "please provide correct user id or order id");
+		return orderOptional;
 	}
 
 }
